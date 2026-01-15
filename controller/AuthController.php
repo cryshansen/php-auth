@@ -396,7 +396,7 @@ class AuthController extends BaseController
   
 
         $firstname = $data['firstname'] ?? null;
-        $lastname = $data['lastName'] ?? null;
+        $lastname = $data['lastname'] ?? null;
         $email = trim(strtolower($data['email'])) ?? null;
         
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
