@@ -54,7 +54,7 @@ CREATE TABLE user_login_attempts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     ip_address VARCHAR(45) NULL,
     email VARCHAR(255) NOT NULL,
-    attempt_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    attempt_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -131,6 +131,8 @@ INSERT INTO users (email, firstname, lastname, is_verified) VALUES
 
 INSERT INTO user_authentication ( password_hash,last_login, failed_attempts ,  lock_until , ip_address, user_id) VALUES
 ( '$2y$10$OL72FraYHJIRxklSmojFJOJBGGUXpVPbFcU7bDLQmUgxlPwDq7Fou', NULL, 0,NULL, '127.0.0.1',1);
+
+INSERT INTO user_authentication ( password_hash,last_login, failed_attempts ,  lock_until , ip_address, user_id) VALUES
 ( '$2y$10$V41QNyHBNgWBBFrFgqwS/OA9cFppomrTAtvf.tQlYrGGo4DkwRLfK', '2026-01-14 18:49:59', 0, '0000-00-00 00:00:00', '192.0.224.208', 2);
 
 
@@ -138,7 +140,9 @@ INSERT INTO user_authentication ( password_hash,last_login, failed_attempts ,  l
 
 INSERT INTO `user_email_verification` ( `user_id`, `email`, `token`, `expires_at`, `used`, `created_at`, `ip_address`) VALUES
 (1, 'unverified@example.com', 'cea9b1bf0a3d8f2c776ebeb4b7374fc8', '2026-01-15 19:26:15', 0, '2026-01-14 14:26:15', '');
-( 2, 'verified@example.com', '5e79ca35a59679b959d70f243dc36754', '2025-08-06 18:30:35', 1, '2025-08-05 14:30:35', '192.0.224.208'),
+
+INSERT INTO `user_email_verification` ( `user_id`, `email`, `token`, `expires_at`, `used`, `created_at`, `ip_address`) VALUES
+( 2, 'verified@example.com', '5e79ca35a59679b959d70f243dc36754', '2025-08-06 18:30:35', 1, '2025-08-05 14:30:35', '192.0.224.208');
 
 
 -- =====================================================
