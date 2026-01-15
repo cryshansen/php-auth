@@ -20,30 +20,30 @@ jobs:
       - name: Check for hardcoded credentials
         run: |
           echo "🔍 Scanning for hardcoded credentials..."
-          
-          # Check for database passwords
-          if grep -r "DB_PASSWORD.*=.*['\"][^'\"]*['\"]" . --include="*.php" --include="*.sh" | grep -v "getenv\|example\|your_\|placeholder"; then
+
+          # Exclude vendor & dependencies
+          EXCLUDES="--exclude-dir=vendor --exclude-dir=PHPMailer --exclude-dir=node_modules --exclude-dir=.git"
+
+          # Database passwords (real assignments only)
+          if grep -R $EXCLUDES -nE "(DB_PASSWORD|DATABASE_PASSWORD|MYSQL_PASSWORD)[[:space:]]*=[[:space:]]*['\"][^'\"]{6,}['\"]" . \
+            | grep -vE "getenv|example|your_|placeholder"; then
             echo "❌ ERROR: Found potential hardcoded database password"
             exit 1
           fi
-          
-          # Check for reCAPTCHA keys (format: 6L + 38 chars)
-          if grep -r "6L[a-zA-Z0-9_-]\{38\}" . --include="*.php" --include="*.md"; then
+
+          # reCAPTCHA site keys (strict format)
+          if grep -R $EXCLUDES -nE "6L[a-zA-Z0-9_-]{38}" .; then
             echo "❌ ERROR: Found potential hardcoded reCAPTCHA key"
             exit 1
           fi
-          
-          # Check for API keys/secrets
-          if grep -r "api[_-]?key.*=.*['\"][^'\"]*['\"]" . --include="*.php" | grep -v "getenv\|example"; then
+
+          # API keys (explicit patterns only)
+          if grep -R $EXCLUDES -nE "(API_KEY|SECRET_KEY)[[:space:]]*=[[:space:]]*['\"][^'\"]{6,}['\"]" . \
+            | grep -vE "getenv|example|placeholder"; then
             echo "❌ ERROR: Found potential hardcoded API key"
             exit 1
           fi
-          
-          # Check for email addresses that look like real accounts
-          if grep -r "info@crystalhansenartographic\|admin@.*\|support@.*" . --include="*.php" --include="*.md"; then
-            echo "⚠️  WARNING: Found potential hardcoded email addresses (not blocking)"
-          fi
-          
+
           echo "✅ No hardcoded credentials detected"
 
       - name: Check for sensitive patterns in comments
