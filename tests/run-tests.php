@@ -6,6 +6,11 @@
  * Run with: php tests/run-tests.php
  */
 
+// Start session BEFORE requiring anything to avoid "headers already sent" error
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . "/../inc/bootstrap.php";
 
 class AuthenticationTests {
