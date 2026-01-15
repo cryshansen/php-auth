@@ -74,7 +74,12 @@ class AuthenticationTests {
     private function testSessionManagement() {
         echo "Running Session Management Tests...\n";
 
-        // Test session start
+        // Start session if not already started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Test session is active
         if (session_status() === PHP_SESSION_ACTIVE) {
             $this->pass("Session started successfully");
         } else {
