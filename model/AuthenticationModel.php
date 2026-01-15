@@ -254,7 +254,6 @@ class AuthenticationModel extends Database
             }else{
                 return ['success' => false, 'message' => 'Failed to save password token.' ];
             }
-            //return $user; 
         
         }
        
@@ -312,7 +311,7 @@ class AuthenticationModel extends Database
         file_put_contents("auth_log.txt", "getUserResetToken: ".$token . "\n", FILE_APPEND);
         file_put_contents("auth_log.txt", "Token Type: " . gettype($token) . "\n", FILE_APPEND);
         $hashed = hash('sha256', $token);
-        $sql = "Select user_id, used, expires_at, ip_address from `password_reset_tokens` where token=:token";
+        $sql = "Select user_id, used, expires_at, ip_address from `user_password_reset` where token=:token";
         $data = [
             'token'=> (string)$hashed    
         ];
@@ -326,7 +325,7 @@ class AuthenticationModel extends Database
         
         file_put_contents("auth_log.txt", "updateUsedToken: ".$tokenUrl . "\n", FILE_APPEND);
         file_put_contents("auth_log.txt", "Token Type: " . gettype($tokenUrl) . "\n", FILE_APPEND);
-        $sql = "Update password_reset_tokens Set used = 1, ip_address = :ip_address  where token=:token";
+        $sql = "Update user_password_reset Set used = 1, ip_address = :ip_address  where token=:token";
         $data = [
             'ip_address' =>  $ipAddress,
             'token'=> (string)$hashed    
@@ -377,7 +376,7 @@ class AuthenticationModel extends Database
     
     public function savePasswordToken($data){
         
-        $sql = "INSERT INTO password_reset_tokens (user_id,token,expires_at,used,created_at) VALUES (:user_id,:token,:expires_at,:used,:created_at)";
+        $sql = "INSERT INTO user_password_reset (user_id,token,expires_at,used,created_at,ip_address) VALUES (:user_id,:token,:expires_at,:used,:created_at, :ip_address)";
         $result = $this->insert($sql,$data);
         return $result;
     }
@@ -394,7 +393,7 @@ class AuthenticationModel extends Database
 
         $dbResults = $this->select($sql,$data);
         
-        return $dbResults;
+        return $dbResults[0];
     }
     
     public function createUser($data){

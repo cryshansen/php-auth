@@ -219,7 +219,7 @@ class AuthController extends BaseController
 
                 }else{
                     
-                    $user= $authenticationModel->getUserByEmail($email); 
+                    $user= $authenticationModel->getUserByEmail($email)[0]; 
                     file_put_contents("auth_log.txt", "\nRaw authController resetpasswordPostAction AFTER getUserByEmail  data: " . print_r($userdb,true) . "\n", FILE_APPEND);
 
                     $signupEmailData = [
