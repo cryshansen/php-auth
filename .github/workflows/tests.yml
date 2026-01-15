@@ -68,6 +68,7 @@ jobs:
         env:
           MYSQL_PWD: root
         run: |
+          mysql -h 127.0.0.1 -u root -e "DROP DATABASE IF EXISTS test_auth_db;"
           mysql -h 127.0.0.1 -u root -e "CREATE DATABASE test_auth_db;"
           mysql -h 127.0.0.1 -u root test_auth_db < database-schema.sql
 
