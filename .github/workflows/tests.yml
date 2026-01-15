@@ -46,11 +46,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      - name: Install PHPMailer dependencies
+      - name: Install PHP dependencies
         run: |
-          cd PHPMailer
-          composer install --no-progress --prefer-dist
-          cd ..
+          if [ -f "composer.json" ]; then
+            composer install --no-progress --prefer-dist
+          fi
+          if [ -f "PHPMailer/composer.json" ]; then
+            cd PHPMailer
+            composer install --no-progress --prefer-dist
+            cd ..
+          fi
 
       - name: Wait for MySQL
         run: |

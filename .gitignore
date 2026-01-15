@@ -1,4 +1,5 @@
 PHPMailer/
+!PHPMailer/composer.json
 
 # Configuration files with sensitive data
 inc/config.php
