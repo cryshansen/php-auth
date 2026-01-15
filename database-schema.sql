@@ -150,6 +150,6 @@ INSERT INTO `user_email_verification` ( `user_id`, `email`, `token`, `expires_at
 -- Additional indexes for common queries
 ALTER TABLE users ADD FULLTEXT INDEX ft_name (firstname, lastname);
 ALTER TABLE users ADD INDEX idx_created_at (created_at);
-ALTER TABLE user_authentication ADD INDEX idx_created_at (created_at);
+
 ALTER TABLE user_email_verification ADD INDEX idx_used (used);
 ALTER TABLE user_password_reset ADD INDEX idx_used (used);
