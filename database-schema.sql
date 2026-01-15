@@ -122,15 +122,14 @@ CREATE TABLE auth_telemetry (
 INSERT INTO users (email, firstname, lastname, is_verified) VALUES
 ('unverified@example.com', 'John', 'Doe', 0);
 
-INSERT INTO user_authentication (user_id, password_hash, failed_attempts, ip_address) VALUES
-(1, '$2y$10$YourHashedPasswordHere', 0, '127.0.0.1');
+INSERT INTO user_authentication (email, password_hash,last_login, failed_attempts ,  lock_until , ip_address, user_id) VALUES
+( 'unverified@example.com','$2y$10$OL72FraYHJIRxklSmojFJOJBGGUXpVPbFcU7bDLQmUgxlPwDq7Fou', NULL, 0,NULL, '127.0.0.1',1);
+
 
 -- Test User 2: Verified
 INSERT INTO users (email, firstname, lastname, is_verified) VALUES
 ('verified@example.com', 'Jane', 'Smith', 1);
 
-INSERT INTO user_authentication (email, password_hash,last_login, failed_attempts ,  lock_until , ip_address, user_id) VALUES
-( 'unverified@example.com','$2y$10$OL72FraYHJIRxklSmojFJOJBGGUXpVPbFcU7bDLQmUgxlPwDq7Fou', NULL, 0,NULL, '127.0.0.1',1);
 
 INSERT INTO user_authentication (email,  password_hash,last_login, failed_attempts ,  lock_until , ip_address, user_id) VALUES
 ( 'verified@example.com','$2y$10$V41QNyHBNgWBBFrFgqwS/OA9cFppomrTAtvf.tQlYrGGo4DkwRLfK', '2026-01-14 18:49:59', 0, '0000-00-00 00:00:00', '192.0.224.208', 2);
