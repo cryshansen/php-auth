@@ -99,13 +99,13 @@ jobs:
 
       - name: Start PHP built-in server
         run: |
-          php -S localhost:8000 > /tmp/php-server.log 2>&1 &
+          php -S localhost:8000 router.php > /tmp/php-server.log 2>&1 &
           SERVER_PID=$!
           sleep 3
           
           # Check if server is running
-          if ! curl -s http://localhost:8000 > /dev/null 2>&1; then
-            echo "❌ PHP server failed to start. Server logs:"
+          if ! curl -s http://localhost:8000/index-auth.php/auth/me > /dev/null 2>&1; then
+            echo "❌ PHP server failed to start or not responding. Server logs:"
             cat /tmp/php-server.log
             kill $SERVER_PID || true
             exit 1
