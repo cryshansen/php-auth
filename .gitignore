@@ -1,25 +1,33 @@
-# CakePHP 3
+PHPMailer/
 
-/vendor/*
-/config/app.php
+# Configuration files with sensitive data
+inc/config.php
+.env
+.env.local
 
-/tmp/cache/models/*
-!/tmp/cache/models/empty
-/tmp/cache/persistent/*
-!/tmp/cache/persistent/empty
-/tmp/cache/views/*
-!/tmp/cache/views/empty
-/tmp/sessions/*
-!/tmp/sessions/empty
-/tmp/tests/*
-!/tmp/tests/empty
+# Log files
+auth_log.txt
+e_log.txt
+log.txt
+output_leak.log
 
-/logs/*
-!/logs/empty
+# IDE and OS files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# CakePHP 2
+# Vendor and dependencies
+vendor/
+node_modules/
 
-/app/tmp/*
-/app/Config/core.php
-/app/Config/database.php
-/vendors/*
+# Cache
+.cache/
+tmp/
+
+
+controller/userControllerReadMe.txt
+CREDENTIAL_AUDIT_FIXES.md
+SECURITY_AUDIT.md
