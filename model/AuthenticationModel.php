@@ -420,7 +420,7 @@ class AuthenticationModel extends Database
 
     public function saveSignupVerification($data){
         //id	user_id	email	token	expires_at	used	created_at	ip_address DONOT Pass created_at it is database level time stamp
-        $sql = "INSERT INTO user_email_verification (`user_id`,`email`,`token`,`expires_at`,`used`,`ip_address`) VALUES (:user_id, :email, :token, :expires_at,:used),:ip_address";
+        $sql = "INSERT INTO user_email_verification (`user_id`,`email`,`token`,`expires_at`,`used`,`ip_address`) VALUES (:user_id, :email, :token, :expires_at,:used,:ip_address)";
         file_put_contents("auth_log.txt", "saveUserAuthentication data  AuthenticationModel " . $sql." : ". print_r($data,true)."\n", FILE_APPEND);
         $dbResults = $this->insert($sql,$data);
         
