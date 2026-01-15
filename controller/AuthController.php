@@ -220,7 +220,7 @@ class AuthController extends BaseController
                 }else{
                     
                     $user= $authenticationModel->getUserByEmail($email)[0]; 
-                    file_put_contents("auth_log.txt", "\nRaw authController resetpasswordPostAction AFTER getUserByEmail  data: " . print_r($userdb,true) . "\n", FILE_APPEND);
+                    file_put_contents("auth_log.txt", "\nRaw authController resetpasswordPostAction AFTER getUserByEmail  data: " . print_r($user,true) . "\n", FILE_APPEND);
 
                     $signupEmailData = [
                         'First Name' => $user['firstname'],
@@ -228,7 +228,7 @@ class AuthController extends BaseController
                         'subject' => "Reset your Password",
                         'corp' => getenv('APP_NAME') ?: 'Application',
                         'contact email' => getenv('MAIL_FROM') ?: 'noreply@example.com',
-                        'validlink' => getenv('APP_URL') . '/resetpassword?token=' . $user['token'] . '&email=' . urlencode($email),
+                        'validlink' => getenv('APP_URL') . '/resetpassword?token=' . $result['user']['token'] . '&email=' . urlencode($email),
                         'Website' => getenv('APP_URL') ?: 'https://example.com',
                         'SocialMediaLink' => getenv('SOCIAL_MEDIA_URL') ?: 'https://example.com',
                     ];
