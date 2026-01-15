@@ -3,7 +3,7 @@
 # API Endpoint Test Suite
 # Tests all critical authentication and user endpoints
 
-BASE_URL="http://localhost:8000"
+BASE_URL="http://localhost:8000/index-auth.php"
 FAILED=0
 PASSED=0
 

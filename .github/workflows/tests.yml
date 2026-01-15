@@ -104,13 +104,29 @@ jobs:
       - name: Start PHP built-in server
         run: |
           php -S localhost:8000 > /tmp/php-server.log 2>&1 &
-          sleep 2
+          SERVER_PID=$!
+          sleep 3
+          
+          # Check if server is running
+          if ! curl -s http://localhost:8000 > /dev/null 2>&1; then
+            echo "❌ PHP server failed to start. Server logs:"
+            cat /tmp/php-server.log
+            kill $SERVER_PID || true
+            exit 1
+          fi
+          echo "✅ PHP server started (PID: $SERVER_PID)"
 
       - name: Run PHP Unit Tests
         run: php tests/run-tests.php
 
       - name: Run API Endpoint Tests
         run: bash tests/api-tests.sh
+      
+      - name: Show PHP server logs if tests failed
+        if: failure()
+        run: |
+          echo "=== PHP Server Logs ==="
+          cat /tmp/php-server.log
 
       - name: Check for hardcoded credentials (Security Check)
         run: |
