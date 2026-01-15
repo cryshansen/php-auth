@@ -190,11 +190,11 @@ class AuthController extends BaseController
         }
  
         //returns $result['success'] && $result['score'] > 0.5;
-       if (!$this->verifyCaptchaV3($captchaResponse)) {
+       /*if (!$this->verifyCaptchaV3($captchaResponse)) {
             $strErrorDesc = 'Invalid reCAPTCHA.';
             $strErrorHeader = 'HTTP/1.1 422 Invalid Captcha';
             
-        }
+        }*/
         
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $strErrorDesc = 'Invalid email address.';
