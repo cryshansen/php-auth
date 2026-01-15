@@ -51,11 +51,7 @@ jobs:
           if [ -f "composer.json" ]; then
             composer install --no-progress --prefer-dist
           fi
-          if [ -f "PHPMailer/composer.json" ]; then
-            cd PHPMailer
-            composer install --no-progress --prefer-dist
-            cd ..
-          fi
+          # PHPMailer source is committed directly, no composer install needed
 
       - name: Wait for MySQL
         run: |
