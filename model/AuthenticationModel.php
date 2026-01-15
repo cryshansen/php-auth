@@ -393,7 +393,7 @@ class AuthenticationModel extends Database
 
         $dbResults = $this->select($sql,$data);
         
-        return $dbResults[0];
+        return $dbResults;
     }
     
     public function createUser($data){
