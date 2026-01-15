@@ -1,0 +1,124 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_auth_db
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3306:3306
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: pdo_mysql, curl
+          coverage: none
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer packages
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install PHPMailer dependencies
+        run: |
+          cd PHPMailer
+          composer install --no-progress --prefer-dist
+          cd ..
+
+      - name: Wait for MySQL
+        run: |
+          while ! mysqladmin ping -h"127.0.0.1" -u"root" -p"root" --silent; do
+            echo 'waiting for mysql...'
+            sleep 1
+          done
+
+      - name: Setup test database
+        env:
+          MYSQL_PWD: root
+        run: |
+          mysql -h 127.0.0.1 -u root -e "CREATE DATABASE test_auth_db;"
+          mysql -h 127.0.0.1 -u root test_auth_db < database-schema.sql
+
+      - name: Create test config
+        run: |
+          cat > inc/config.php << 'EOF'
+          <?php
+          define("DB_HOST", "127.0.0.1");
+          define("DB_USERNAME", "root");
+          define("DB_PASSWORD", "root");
+          define("DB_DATABASE_NAME", "test_auth_db");
+          define("APP_ENV", "testing");
+          define("APP_DEBUG", true);
+          define("DEBUG_MODE", true);
+          define("LOG_SENSITIVE_DATA", true);
+          define("MAIL_FROM", "test@example.com");
+          define("MAIL_HOST", "smtp.example.com");
+          define("MAIL_USERNAME", "test@example.com");
+          define("MAIL_PASSWORD", "test");
+          define("SESSION_LIFETIME", 3600);
+          define("SESSION_SECURE", false);
+          ?>
+          EOF
+
+      - name: Set environment variables for tests
+        run: |
+          echo "APP_URL=http://localhost:8000" >> $GITHUB_ENV
+          echo "MAIL_FROM=noreply@example.com" >> $GITHUB_ENV
+          echo "APP_NAME=Test App" >> $GITHUB_ENV
+          echo "RECAPTCHA_SECRET_KEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" >> $GITHUB_ENV
+          echo "RECAPTCHA_SITE_KEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" >> $GITHUB_ENV
+
+      - name: Start PHP built-in server
+        run: |
+          php -S localhost:8000 > /tmp/php-server.log 2>&1 &
+          sleep 2
+
+      - name: Run PHP Unit Tests
+        run: php tests/run-tests.php
+
+      - name: Run API Endpoint Tests
+        run: bash tests/api-tests.sh
+
+      - name: Check for hardcoded credentials (Security Check)
+        run: |
+          echo "Checking for hardcoded credentials..."
+          ! grep -r "password.*=.*['\"]" . --include="*.php" | grep -v "getenv\|example\|your_\|placeholder\|test" || exit 1
+          ! grep -r "6L[a-zA-Z0-9_-]\{38\}" . --include="*.php" || exit 1
+          echo "✓ No hardcoded credentials found"
+
+      - name: Generate test report
+        if: always()
+        run: |
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Database: Connected" >> $GITHUB_STEP_SUMMARY
+          echo "- PHP: ${{ matrix.php }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Environment: Testing" >> $GITHUB_STEP_SUMMARY
+

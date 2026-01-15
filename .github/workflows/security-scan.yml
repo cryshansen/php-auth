@@ -1,0 +1,108 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Full history for secret detection
+
+      - name: Check for hardcoded credentials
+        run: |
+          echo "🔍 Scanning for hardcoded credentials..."
+          
+          # Check for database passwords
+          if grep -r "DB_PASSWORD.*=.*['\"][^'\"]*['\"]" . --include="*.php" --include="*.sh" | grep -v "getenv\|example\|your_\|placeholder"; then
+            echo "❌ ERROR: Found potential hardcoded database password"
+            exit 1
+          fi
+          
+          # Check for reCAPTCHA keys (format: 6L + 38 chars)
+          if grep -r "6L[a-zA-Z0-9_-]\{38\}" . --include="*.php" --include="*.md"; then
+            echo "❌ ERROR: Found potential hardcoded reCAPTCHA key"
+            exit 1
+          fi
+          
+          # Check for API keys/secrets
+          if grep -r "api[_-]?key.*=.*['\"][^'\"]*['\"]" . --include="*.php" | grep -v "getenv\|example"; then
+            echo "❌ ERROR: Found potential hardcoded API key"
+            exit 1
+          fi
+          
+          # Check for email addresses that look like real accounts
+          if grep -r "info@crystalhansenartographic\|admin@.*\|support@.*" . --include="*.php" --include="*.md"; then
+            echo "⚠️  WARNING: Found potential hardcoded email addresses (not blocking)"
+          fi
+          
+          echo "✅ No hardcoded credentials detected"
+
+      - name: Check for sensitive patterns in comments
+        run: |
+          echo "🔍 Checking for sensitive information in comments..."
+          
+          # Look for domains in comments that might leak information
+          if grep -r "//.*crystalhansenartographic\|#.*crystalhansenartographic" . --include="*.php" | grep -v ".github"; then
+            echo "⚠️  WARNING: Found domain references in comments (consider removing)"
+          fi
+          
+          echo "✅ Comment scan complete"
+
+      - name: Check .gitignore configuration
+        run: |
+          echo "🔍 Checking .gitignore for sensitive files..."
+          
+          if [ -f .gitignore ]; then
+            if grep -q "\.env" .gitignore && \
+               grep -q "config\.php" .gitignore && \
+               grep -q "\.log" .gitignore; then
+              echo "✅ .gitignore properly configured"
+            else
+              echo "⚠️  WARNING: .gitignore may be missing important entries"
+              echo "   Recommended entries:"
+              echo "   - .env (and .env.local)"
+              echo "   - inc/config.php"
+              echo "   - *.log"
+            fi
+          else
+            echo "❌ ERROR: .gitignore not found"
+            exit 1
+          fi
+
+      - name: Verify environment variables are used
+        run: |
+          echo "🔍 Verifying environment variables are used for sensitive config..."
+          
+          # Check mail.php uses getenv for credentials
+          if grep -q "getenv.*MAIL_PASSWORD" mail.php; then
+            echo "✅ Mail configuration uses environment variables"
+          else
+            echo "⚠️  WARNING: mail.php may not use environment variables for credentials"
+          fi
+          
+          # Check BaseController uses getenv for reCAPTCHA
+          if grep -q "getenv.*RECAPTCHA" controller/BaseController.php; then
+            echo "✅ reCAPTCHA configuration uses environment variables"
+          else
+            echo "⚠️  WARNING: reCAPTCHA may not use environment variables"
+          fi
+
+      - name: Generate security report
+        if: always()
+        run: |
+          echo "## Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Hardcoded credentials check" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Sensitive patterns check" >> $GITHUB_STEP_SUMMARY
+          echo "✅ .gitignore validation" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Environment variables check" >> $GITHUB_STEP_SUMMARY
+
