@@ -132,7 +132,7 @@ INSERT INTO users (email, firstname, lastname, is_verified) VALUES
 
 
 INSERT INTO user_authentication (email,  password_hash,last_login, failed_attempts ,  lock_until , ip_address, user_id) VALUES
-( 'verified@example.com','$2y$10$V41QNyHBNgWBBFrFgqwS/OA9cFppomrTAtvf.tQlYrGGo4DkwRLfK', '2026-01-14 18:49:59', 0, '0000-00-00 00:00:00', '192.0.224.208', 2);
+( 'verified@example.com','$2y$10$V41QNyHBNgWBBFrFgqwS/OA9cFppomrTAtvf.tQlYrGGo4DkwRLfK', '2026-01-14 18:49:59', 0, NULL, '192.0.224.208', 2);
 
 
 -- Test User1 Unverified  User 2: Verified
