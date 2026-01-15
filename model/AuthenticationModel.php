@@ -37,7 +37,6 @@ class AuthenticationModel extends Database
         
         // Insert user authentication info
         $authData = [
-            'email' => $email,
             'password_hash' => password_hash($password, PASSWORD_DEFAULT),  // always hash passwords!
             'last_login' => null,
             'failed_attempts' => 0,
@@ -313,7 +312,7 @@ class AuthenticationModel extends Database
         file_put_contents("auth_log.txt", "getUserResetToken: ".$token . "\n", FILE_APPEND);
         file_put_contents("auth_log.txt", "Token Type: " . gettype($token) . "\n", FILE_APPEND);
         $hashed = hash('sha256', $token);
-        $sql = "Select user_id, used, expires_at, ip_address from `user_password_reset` where token=:token";
+        $sql = "Select user_id, used, expires_at, ip_address from `password_reset_tokens` where token=:token";
         $data = [
             'token'=> (string)$hashed    
         ];
@@ -327,7 +326,7 @@ class AuthenticationModel extends Database
         
         file_put_contents("auth_log.txt", "updateUsedToken: ".$tokenUrl . "\n", FILE_APPEND);
         file_put_contents("auth_log.txt", "Token Type: " . gettype($tokenUrl) . "\n", FILE_APPEND);
-        $sql = "Update user_password_reset Set used = 1, ip_address = :ip_address  where token=:token";
+        $sql = "Update password_reset_tokens Set used = 1, ip_address = :ip_address  where token=:token";
         $data = [
             'ip_address' =>  $ipAddress,
             'token'=> (string)$hashed    
@@ -346,10 +345,10 @@ class AuthenticationModel extends Database
     public function emailVerification($data){
         //get user by email id for update of the user table set is_verified = 1
         
-        //UPDATE `user_email_verification` SET `used` = '0' WHERE `user_email_verification`.`email` = 'info@ecry.com' and `token` = 'e9a18f02b34fb36f01827d8e22dc585a';
+        //UPDATE `email_verification` SET `used` = '0' WHERE `email_verification`.`email` = 'info@ecry.com' and `token` = 'e9a18f02b34fb36f01827d8e22dc585a';
        
-        $query = "UPDATE `user_email_verification` 
-          SET `used` = 1, ip_address = :ip_address 
+        $query = "UPDATE `email_verification` 
+          SET `used` = 1 
           WHERE `email` = :email AND `token` = :token";
 
         
@@ -373,16 +372,12 @@ class AuthenticationModel extends Database
                 return ['success' => true, 'message' => 'Email Verified.' ];
             }
         }
-        
-        
-        
-        
     }
     
     
     public function savePasswordToken($data){
         
-        $sql = "INSERT INTO user_password_reset (user_id,token,expires_at,used,ip_address,created_at) VALUES (:user_id,:token,:expires_at,:used,:ip_address,:created_at)";
+        $sql = "INSERT INTO password_reset_tokens (user_id,token,expires_at,used,ip_address,created_at) VALUES (:user_id,:token,:expires_at,:used,:ip_address,:created_at)";
         $result = $this->insert($sql,$data);
         return $result;
     }
@@ -413,9 +408,9 @@ class AuthenticationModel extends Database
     
     
     public function saveUserAuthentication($data){
-        //id email	password_hash	last_login	failed_attempts	lock_until	
+        //id password_hash	last_login	failed_attempts	lock_until user_id
 
-        $sql = "INSERT INTO user_authentication (`email`,`password_hash`,`last_login`,`failed_attempts`,`lock_until`,`ip_address`,`user_id`) VALUES (:email, :password_hash, :last_login,:failed_attempts,:lock_until,:ip_address,:user_id)";
+        $sql = "INSERT INTO user_authentication (`password_hash`,`last_login`,`failed_attempts`,`lock_until`,`ip_address`,`user_id`) VALUES (:password_hash, :last_login,:failed_attempts,:lock_until,:ip_address,:user_id)";
         file_put_contents("auth_log.txt", "saveUserAuthentication data  AuthenticationModel " . $sql." : ". print_r($data,true)."\n", FILE_APPEND);
         $dbResults = $this->insert($sql,$data);
         return $dbResults;
@@ -426,7 +421,7 @@ class AuthenticationModel extends Database
 
     public function saveSignupVerification($data){
         //id	user_id	email	token	expires_at	used	created_at	
-        $sql = "INSERT INTO user_email_verification (`user_id`,`email`,`token`,`expires_at`,`used`) VALUES (:user_id, :email, :token, :expires_at,:used)";
+        $sql = "INSERT INTO email_verification (`user_id`,`email`,`token`,`expires_at`,`used`) VALUES (:user_id, :email, :token, :expires_at,:used)";
         file_put_contents("auth_log.txt", "saveUserAuthentication data  AuthenticationModel " . $sql." : ". print_r($data,true)."\n", FILE_APPEND);
         $dbResults = $this->insert($sql,$data);
         
