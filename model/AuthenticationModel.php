@@ -377,7 +377,7 @@ class AuthenticationModel extends Database
     
     public function savePasswordToken($data){
         
-        $sql = "INSERT INTO password_reset_tokens (user_id,token,expires_at,used,ip_address,created_at) VALUES (:user_id,:token,:expires_at,:used,:ip_address,:created_at)";
+        $sql = "INSERT INTO password_reset_tokens (user_id,token,expires_at,used,created_at) VALUES (:user_id,:token,:expires_at,:used,:created_at)";
         $result = $this->insert($sql,$data);
         return $result;
     }

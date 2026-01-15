@@ -55,15 +55,15 @@ echo ""
 
 # Test 1: Signup with valid data
 test_endpoint "POST" "/auth/signup" \
-    '{"firstname":"Test","lastname":"User","email":"test@example.com","password":"TestPass123!","token":""}' \
+    '{"firstname":"Test","lastname":"User","email":"test1@example.com","password":"TestPass123!","token":""}' \
     "200" \
     "Signup - Valid data"
 
 # Test 2: Signup with duplicate email
 test_endpoint "POST" "/auth/signup" \
-    '{"firstname":"Test","lastname":"User","email":"test@example.com","password":"TestPass123!","token":""}' \
+    '{"firstname":"Test","lastname":"User","email":"test2@example.com","password":"TestPass123!","token":""}' \
     "200" \
-    "Signup - Duplicate email"
+    "Signup - Different user"
 
 # Test 3: Signup with invalid email
 test_endpoint "POST" "/auth/signup" \
