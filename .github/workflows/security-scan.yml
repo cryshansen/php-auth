@@ -2,9 +2,9 @@ name: Security Scan
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, initial-setup, develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, initial-setup, develop ]
   schedule:
     - cron: '0 0 * * 0'  # Weekly on Sunday
 
