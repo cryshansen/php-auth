@@ -124,9 +124,18 @@ jobs:
           echo "=== PHP Server Logs ==="
           cat /tmp/php-server.log
 
+      - name: DEBUG security scan
+        run: |
+          echo "==== DEBUG: reCAPTCHA matches ===="
+          grep -R -nE "6L[a-zA-Z0-9_-]{38}" . || true
+
+          echo "==== DEBUG: DB password matches ===="
+          grep -R -nE "(DB_PASSWORD|DATABASE_PASSWORD|MYSQL_PASSWORD)" . || true
+
       - name: Check for hardcoded credentials (Security Check)
         run: |
           echo "Checking for hardcoded credentials..."
+          EXCLUDES="--exclude-dir=vendor --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.github"
           ! grep -r "password.*=.*['\"]" . --include="*.php" | grep -v "getenv\|example\|your_\|placeholder\|test" || exit 1
           ! grep -r "6L[a-zA-Z0-9_-]\{38\}" . --include="*.php" || exit 1
           echo "✓ No hardcoded credentials found"
