@@ -77,9 +77,7 @@ class AuthController extends BaseController
         $captchaResponse = $data["token"] ?? '';
         
         /*if (!$this->verifyCaptchaV3($captchaResponse)) {
-            
-            
-            
+
             $strErrorDesc = 'Invalid reCAPTCHA.';
             $strErrorHeader = 'HTTP/1.1 400 Bad Request';
             //return json_encode(["status" => "error", "message" => "Invalid reCAPTCHA."]);
@@ -94,9 +92,7 @@ class AuthController extends BaseController
             
         }
         
-        $result =true;
-        
-        if($result){
+
             
             try{
                 $authenticationModel =  new AuthenticationModel();
@@ -139,18 +135,19 @@ class AuthController extends BaseController
                     
                     
                 }
-            } catch (Error $e) {
-                $strErrorDesc = $e->getMessage().'Something went wrong! Please contact support.';
-                $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+            } catch (Exception $e) {
+                if ($e->getMessage() === 'EMAIL_ALREADY_EXISTS') {
+                     $responseData = json_encode([
+                        'success' => false,
+                        'message' => 'Unable to create account with this email.'
+                    ]);
+                    strHeader = "HTTP/1.1 409 Account Conflict."
+                } else {
+                    $strErrorDesc = $e->getMessage().'Something went wrong! Please contact support.';
+                    $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+                }
             }
             
-        } else {
-           // echo json_encode(["status" => "error", "message" => "Database error"]);
-            file_put_contents("e_log.txt", "ERROR: with sending email\n", FILE_APPEND);
-
-            $strErrorDesc = 'Something went wrong! Please contact support.';
-            $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
-        }
          
         // send output
        if (!$strErrorDesc) {

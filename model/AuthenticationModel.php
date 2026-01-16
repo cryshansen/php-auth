@@ -24,6 +24,10 @@ class AuthenticationModel extends Database
     
     public function signupUser($firstname,$lastname,$email,$password,$verificationNo){
         file_put_contents("auth_log.txt", "signupUser data  AuthenticationModel " . $firstname." ". $lastname." ". $email." ". $password." ". $verificationNo."\n", FILE_APPEND);
+        if ($this->emailExists($email)) {
+             throw new Exception("EMAIL_ALREADY_EXISTS");
+         }   
+        
         // Get client IP address
         $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN';
         $userData = [
@@ -32,24 +36,31 @@ class AuthenticationModel extends Database
             'email' => $email,
             'is_verified' => 0
         ];
-        $result = $this->createUser($userData);
-        $user_id = $this->lastInsertId();
-        
-        // Insert user authentication info
-        $authData = [
-            'email' => $email,
-            'password_hash' => password_hash($password, PASSWORD_DEFAULT),  // always hash passwords!
-            'last_login' => null,
-            'failed_attempts' => 0,
-            'lock_until' => null,
-            'ip_address' => $ipAddress,
-            'user_id' => $user_id
-        ];
-        
-        $result2 = $this->saveUserAuthentication($authData);
-        file_put_contents("auth_log.txt", "signupUser after saveUserAuthentication data  AuthenticationModel " . $result2."\n", FILE_APPEND);
+        try{
+            $result = $this->createUser($userData);
+        catch (PDOException $e) {
+            if ($e->getCode() === '23000') {
+                throw new Exception("EMAIL_ALREADY_EXISTS");
+            }
+            throw $e; // rethrow unknown errors
+        }
+            $user_id = $this->lastInsertId();
+            
+            // Insert user authentication info
+            $authData = [
+                'email' => $email,
+                'password_hash' => password_hash($password, PASSWORD_DEFAULT),  // always hash passwords!
+                'last_login' => null,
+                'failed_attempts' => 0,
+                'lock_until' => null,
+                'ip_address' => $ipAddress,
+                'user_id' => $user_id
+            ];
+            
+            $result2 = $this->saveUserAuthentication($authData);
+            file_put_contents("auth_log.txt", "signupUser after saveUserAuthentication data  AuthenticationModel " . $result2."\n", FILE_APPEND);
 
-        //  Insert email verification token
+            //  Insert email verification token
         $expires = new DateTime();
         $expires->modify('+24 hours');
         
@@ -440,4 +451,15 @@ class AuthenticationModel extends Database
         
     }
     
+    public function emailExists(string $email): bool
+    { $sql = "SELECT 1 FROM users WHERE email = :email LIMIT 1";
+        $data =[
+            'email' => $email
+        ];
+        
+        $dbResults = $this->select($sql,$data);
+        return !empty($dbResults);
+    }
+
+
 }
