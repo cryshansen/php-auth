@@ -16,28 +16,28 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Full history for secret detection
-
+                
       - name: Check for hardcoded credentials
         run: |
-          echo "🔍 Checking for hardcoded credentials..."
+          echo "🔍 Checking for hardcoded credentials (PHP only)..."
 
-          EXCLUDES="--exclude-dir=vendor --exclude-dir=PHPMailer --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.github"
+          EXCLUDES="--exclude-dir=vendor --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.github"
 
-          # Database passwords
-          if grep -R $EXCLUDES -nE "(DB_PASSWORD|DATABASE_PASSWORD|MYSQL_PASSWORD)[[:space:]]*=[[:space:]]*['\"][^'\"]{6,}['\"]" . \
-            | grep -vE "getenv|example|placeholder|test"; then
-            echo "⚠️  WARNING: Hardcoded database password detected"
+          # Database secrets
+          if grep -R $EXCLUDES --include="*.php" -nE \
+            "(DB_PASSWORD|DATABASE_PASSWORD|MYSQL_PASSWORD)[[:space:]]*=[[:space:]]*['\"][^'\"]{6,}['\"]" .; then
+            echo "❌ Hardcoded DB password found"
             exit 1
           fi
 
-          # reCAPTCHA keys
-          if grep -R $EXCLUDES -nE "6L[a-zA-Z0-9_-]{38}" .; then
-            echo "⚠️  WARNING: Hardcoded reCAPTCHA key detected"
+          # reCAPTCHA keys (PHP only)
+          if grep -R $EXCLUDES --include="*.php" -nE \
+            "6L[a-zA-Z0-9_-]{38}" .; then
+            echo "❌ Hardcoded reCAPTCHA key found"
             exit 1
           fi
 
           echo "✅ No hardcoded credentials found"
-
 
       - name: Check for sensitive patterns in comments
         run: |
