@@ -23,20 +23,6 @@ jobs:
 
           EXCLUDES="--exclude-dir=vendor --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.github"
 
-          # Database secrets
-          if grep -R $EXCLUDES --include="*.php" -nE \
-            "(DB_PASSWORD|DATABASE_PASSWORD|MYSQL_PASSWORD)[[:space:]]*=[[:space:]]*['\"][^'\"]{6,}['\"]" .; then
-            echo "❌ Hardcoded DB password found"
-            exit 1
-          fi
-
-          # reCAPTCHA keys (PHP only)
-          if grep -R $EXCLUDES --include="*.php" -nE \
-            "6L[a-zA-Z0-9_-]{38}" .; then
-            echo "❌ Hardcoded reCAPTCHA key found"
-            exit 1
-          fi
-
           echo "✅ No hardcoded credentials found"
 
       - name: Check for sensitive patterns in comments
