@@ -38,7 +38,7 @@ class AuthenticationModel extends Database
         ];
         try{
             $result = $this->createUser($userData);
-        catch (PDOException $e) {
+        } catch (PDOException $e) {
             if ($e->getCode() === '23000') {
                 throw new Exception("EMAIL_ALREADY_EXISTS");
             }
