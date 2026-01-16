@@ -141,7 +141,7 @@ class AuthController extends BaseController
                         'success' => false,
                         'message' => 'Unable to create account with this email.'
                     ]);
-                    $strHeader = "HTTP/1.1 409 Account Conflict."
+                    $strHeader = "HTTP/1.1 409 Account Conflict.";
                 } else {
                     $strErrorDesc = $e->getMessage().'Something went wrong! Please contact support.';
                     $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
