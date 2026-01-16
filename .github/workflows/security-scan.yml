@@ -27,13 +27,13 @@ jobs:
           # 1️⃣ Database passwords ONLY (real assignments)
           if grep -R $EXCLUDES -nE "(DB_PASSWORD|DATABASE_PASSWORD|MYSQL_PASSWORD)[[:space:]]*=[[:space:]]*['\"][^'\"]{6,}['\"]" . \
             | grep -vE "getenv|example|placeholder|test"; then
-            echo "❌ ERROR: Hardcoded database password detected"
+            echo " ⚠️  WARNING:  Hardcoded database password detected"
             exit 1
           fi
 
           # 2️⃣ reCAPTCHA keys (real format)
           if grep -R $EXCLUDES -nE "6L[a-zA-Z0-9_-]{38}" .; then
-            echo "❌ ERROR: Hardcoded reCAPTCHA key detected"
+            echo "⚠️  WARNING:  Hardcoded reCAPTCHA key detected"
             exit 1
           fi
 
