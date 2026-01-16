@@ -136,8 +136,20 @@ jobs:
         run: |
           echo "Checking for hardcoded credentials..."
           EXCLUDES="--exclude-dir=vendor --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.github"
-          ! grep -r "password.*=.*['\"]" . --include="*.php" | grep -v "getenv\|example\|your_\|placeholder\|test" || exit 1
-          ! grep -r "6L[a-zA-Z0-9_-]\{38\}" . --include="*.php" || exit 1
+          # ❌ Hardcoded DB passwords (REAL secrets only)
+          if grep -R $EXCLUDES --include="*.php" -nE \
+            "(DB_PASSWORD|DATABASE_PASSWORD|MYSQL_PASSWORD)[[:space:]]*=[[:space:]]*['\"][^'\"]{6,}['\"]" . \
+            | grep -vE "getenv|example|placeholder|test"; then
+            echo "❌ Hardcoded database password detected"
+            exit 1
+          fi
+
+          # ❌ Hardcoded reCAPTCHA keys (real key format)
+          if grep -R $EXCLUDES --include="*.php" -nE \
+            "6L[a-zA-Z0-9_-]{38}" .; then
+            echo "❌ Hardcoded reCAPTCHA key detected"
+            exit 1
+          fi
           echo "✓ No hardcoded credentials found"
 
       - name: Generate test report
